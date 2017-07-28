@@ -3,6 +3,14 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# bin, obj from projects
+Admin/bin
+Admin/obj
+Client/bin
+Client/obj
+ServerCLI/bin
+ServerCLI/obj
+
 # User-specific files
 *.suo
 *.user
