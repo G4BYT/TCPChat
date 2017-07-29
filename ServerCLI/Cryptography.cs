@@ -16,10 +16,6 @@ namespace ServerCLI
             Padding = PaddingMode.PKCS7
         };
 
-        private static Rfc2898DeriveBytes password;
-        private static MemoryStream memoryStream;
-        private static CryptoStream cryptoStream;
-
         /// <summary>
         /// I will highly suggest you to generate a strong passphrase, encode in Base64 and replace this passphrase.
         /// Because the project is open source and everyone has this passphrase! You need to have the same passphrase on client and server.
@@ -60,19 +56,19 @@ namespace ServerCLI
                     passphrase = HardCodedPassphraseAdmin;
                     break;
             }
-            password = new Rfc2898DeriveBytes(Convert.FromBase64String(passphrase), salt, iterations);
+            Rfc2898DeriveBytes password = new Rfc2898DeriveBytes(Convert.FromBase64String(passphrase), salt, iterations);
             byte[] key = password.GetBytes(16);
             using (ICryptoTransform encryptor = Rijandael.CreateEncryptor(key, IV))
             {
-                memoryStream = new MemoryStream();
-                cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
+                MemoryStream memoryStream = new MemoryStream();
+                CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
                 cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
                 cryptoStream.FlushFinalBlock();
                 byte[] cipherTextBytes = salt;
                 cipherTextBytes = cipherTextBytes.Concat(IV).ToArray();
                 cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
-                memoryStream.Close();
-                cryptoStream.Close();
+                memoryStream?.Close();
+                cryptoStream?.Close();
                 return Encoding.UTF8.GetBytes(Convert.ToBase64String(cipherTextBytes));
             }
         }
@@ -94,16 +90,16 @@ namespace ServerCLI
                     passphrase = HardCodedPassphraseAdmin;
                     break;
             }
-            password = new Rfc2898DeriveBytes(Convert.FromBase64String(passphrase), salt, iterations);
+            Rfc2898DeriveBytes password = new Rfc2898DeriveBytes(Convert.FromBase64String(passphrase), salt, iterations);
             byte[] key = password.GetBytes(16);
             using (ICryptoTransform decryptor = Rijandael.CreateDecryptor(key, IV))
             {
-                memoryStream = new MemoryStream(cipherTextBytes);
-                cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
+                MemoryStream memoryStream = new MemoryStream(cipherTextBytes);
+                CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
                 byte[] plainTextBytes = new byte[cipherTextBytes.Length];
                 int decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-                memoryStream.Close();
-                cryptoStream.Close();
+                memoryStream?.Close();
+                cryptoStream?.Close();
                 return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount);
             }
         }

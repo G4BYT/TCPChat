@@ -17,7 +17,7 @@ namespace ServerCLI
         public void InterpretCommand(string command)
         {
             string[] commands = command.Split(' ');
-            List<Socket> socketList = new List<Socket>(server.clients.Keys);
+            List<Socket> socketList = new List<Socket>(Server.clients.Keys);
             List<IPAddress> ipList;
             List<IPEndPoint> ipEndPointList;
             IPAddress ip = null;
@@ -33,7 +33,7 @@ namespace ServerCLI
                     switch (commands[1])
                     {
                         case "clients":
-                            if (server.clients.Count == 0)
+                            if (Server.clients.Count == 0)
                             {
                                 server.Write(Server.Notification.Asterisk, "No clients connected to server");
                                 return;
@@ -41,7 +41,7 @@ namespace ServerCLI
                             for (int i = 0; i < socketList.Count; i++)
                             {
                                 server.Write(Server.Notification.Asterisk,
-                                    socketList[i].RemoteEndPoint + " " + server.clients[socketList[i]].nickname);
+                                    socketList[i].RemoteEndPoint + " " + Server.clients[socketList[i]].nickname);
                             }
                             break;
 
@@ -58,7 +58,7 @@ namespace ServerCLI
                             break;
 
                         case "info":
-                            if (server.clients.Count == 0)
+                            if (Server.clients.Count == 0)
                             {
                                 server.Write(Server.Notification.Asterisk, "No clients connected to server");
                                 return;
@@ -72,11 +72,11 @@ namespace ServerCLI
                                     if (socketList[j].RemoteEndPoint.ToString().Equals(commands[i]))
                                     {
                                         server.Write(Server.Notification.Asterisk, socketList[j].RemoteEndPoint.ToString());
-                                        server.Write(Server.Notification.Asterisk, "Nickname: "+ server.clients[socketList[j]].nickname);
-                                        server.Write(Server.Notification.Asterisk, "Muted: " + server.clients[socketList[j]].Muted.ToString());
-                                        server.Write(Server.Notification.Asterisk, "Away: " + server.clients[socketList[j]].Away.ToString());
-                                        server.Write(Server.Notification.Asterisk, "Last Message: " + server.clients[socketList[j]].LastMessage);
-                                        server.Write(Server.Notification.Asterisk, "Last Time Message: " + server.clients[socketList[j]].LastMessageTime.ToLongTimeString());
+                                        server.Write(Server.Notification.Asterisk, "Nickname: "+ Server.clients[socketList[j]].nickname);
+                                        server.Write(Server.Notification.Asterisk, "Muted: " + Server.clients[socketList[j]].Muted.ToString());
+                                        server.Write(Server.Notification.Asterisk, "Away: " + Server.clients[socketList[j]].Away.ToString());
+                                        server.Write(Server.Notification.Asterisk, "Last Message: " + Server.clients[socketList[j]].LastMessage);
+                                        server.Write(Server.Notification.Asterisk, "Last Time Message: " + Server.clients[socketList[j]].LastMessageTime.ToLongTimeString());
                                     }
                                 }
 

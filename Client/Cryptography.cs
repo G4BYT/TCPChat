@@ -16,10 +16,6 @@ namespace Client
             Padding = PaddingMode.PKCS7
         };
 
-        private static Rfc2898DeriveBytes password;
-        private static MemoryStream memoryStream;
-        private static CryptoStream cryptoStream;
-
         /// <summary>
         /// I will highly suggest you to generate a strong passphrase, encode in Base64 and replace this passphrase.
         /// Because the project is open source and everyone has this passphrase! You need to have the same passphrase on client and server.
@@ -41,12 +37,12 @@ namespace Client
             byte[] salt = GenerateSecureCharacters();
             byte[] IV = GenerateSecureCharacters();
             byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);
-            password = new Rfc2898DeriveBytes(Convert.FromBase64String(HardCodedPassphrase), salt, iterations);
+            Rfc2898DeriveBytes password = new Rfc2898DeriveBytes(Convert.FromBase64String(HardCodedPassphrase), salt, iterations);
             byte[] key = password.GetBytes(16);
             using (ICryptoTransform encryptor = Rijandael.CreateEncryptor(key, IV))
             {
-                memoryStream = new MemoryStream();
-                cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
+                MemoryStream memoryStream = new MemoryStream();
+                CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
                 cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
                 cryptoStream.FlushFinalBlock();
                 byte[] cipherTextBytes = salt;
@@ -64,12 +60,12 @@ namespace Client
             byte[] salt = cipherTextBytesWithSaltAndIv.Take(16).ToArray();
             byte[] IV = cipherTextBytesWithSaltAndIv.Skip(16).Take(16).ToArray();
             byte[] cipherTextBytes = cipherTextBytesWithSaltAndIv.Skip(32).Take(cipherTextBytesWithSaltAndIv.Length - 32).ToArray();
-            password = new Rfc2898DeriveBytes(Convert.FromBase64String(HardCodedPassphrase), salt, iterations);
+            Rfc2898DeriveBytes password = new Rfc2898DeriveBytes(Convert.FromBase64String(HardCodedPassphrase), salt, iterations);
             byte[] key = password.GetBytes(16);
             using (ICryptoTransform decryptor = Rijandael.CreateDecryptor(key, IV))
             {
-                memoryStream = new MemoryStream(cipherTextBytes);
-                cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
+                MemoryStream memoryStream = new MemoryStream(cipherTextBytes);
+                CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
                 byte[] plainTextBytes = new byte[cipherTextBytes.Length];
                 int decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
                 memoryStream.Close();

@@ -26,10 +26,10 @@ namespace ServerCLI
                         connectCommand = "UsernamePasswordAccepted";
                         if (!Admin.adminList.Contains(admin))
                             return;
-                        List<Socket> socketList = new List<Socket>(server.clients.Keys);
+                        List<Socket> socketList = new List<Socket>(Server.clients.Keys);
                         for (int i = 0; i < socketList.Count; i++)
                         {
-                            Client client = server.clients[socketList[i]];
+                            Client client = Server.clients[socketList[i]];
                             connectCommand += "|" + client.nickname
                                 + "|" + client.ChatIcon + "|" + client.IpEndPoint.ToString() + "|" +
                                 client.LastMessageTime.ToLongTimeString() + "|" + client.LastMessage;

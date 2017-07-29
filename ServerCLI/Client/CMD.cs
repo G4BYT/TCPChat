@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -18,26 +17,27 @@ namespace ServerCLI
         public void ReceiveCommand(Client sender, string command)
         {
             string[] commands = command.Split('|');
-            List<Socket> socketList = new List<Socket>(server.clients.Keys);
+            List<Socket> socketList = new List<Socket>(Server.clients.Keys);
             switch (commands[0])
             {
                 case "CheckNickname":
                     server.Write(Server.Notification.ExclamationMark, sender.IpEndPoint.ToString() + " is trying the nickname " + commands[1]);
                     for (int i = 0; i < socketList.Count; i++)
                     {
-                        if (server.clients[socketList[i]].nickname?.ToLower() == commands[1].ToLower()
-                            || commands[1].ToLower() == "server" || commands[1].ToLower() == "bot")
-                        {
-                            SendCommand(sender, "NicknameAlreadyUse|");
-                            return;
-                        }
+                        if(socketList[i] != null && Server.clients.ContainsKey(socketList[i]))
+                            if (Server.clients[socketList[i]]?.nickname?.ToLower() == commands[1].ToLower()
+                                || commands[1].ToLower() == "server" || commands[1].ToLower() == "bot")
+                            {
+                                SendCommand(sender, "NicknameAlreadyUse|");
+                                return;
+                            }
                     }
                     SendCommand(sender, "NicknameAvailable|");
                     break;
 
                 case "Connected":
                     string connectCommand;
-                    if (server.clients.ContainsKey(sender.socket))
+                    if (Server.clients.ContainsKey(sender.socket))
                     {
                         sender.nickname = commands[1];
                         server.Write(Server.Notification.Plus, sender.IpEndPoint.ToString() + " has been connected with the nickname " + sender.nickname);
@@ -47,8 +47,8 @@ namespace ServerCLI
                     {
                         if (socketList[i] == sender.socket)
                             continue;
-                        connectCommand += "|" + server.clients[socketList[i]].nickname
-                            + "|" + server.clients[socketList[i]].ChatIcon;
+                        connectCommand += "|" + Server.clients[socketList[i]].nickname
+                            + "|" + Server.clients[socketList[i]].ChatIcon;
                     }
                     SendCommand(sender, connectCommand); 
                     connectCommand = "NewUser|" + sender.nickname + "|" + sender.ChatIcon;
@@ -65,7 +65,7 @@ namespace ServerCLI
                     }
                     sender.TimerReset();
                     SendToAllThisCommand("GlobalMessage|" + commands[1] + "|" + commands[2]);
-                    if (server.clients.ContainsKey(sender.socket))
+                    if (Server.clients.ContainsKey(sender.socket))
                     {
                         sender.LastMessageTime = DateTime.Now;
                         sender.LastMessage = commands[2];
@@ -76,9 +76,9 @@ namespace ServerCLI
                 case "PrivateChat":
                     for (int i = 0; i < socketList.Count; i++)
                     {
-                        if (server.clients[socketList[i]].nickname == commands[1])
+                        if (Server.clients[socketList[i]].nickname == commands[1])
                         {
-                            SendCommand(server.clients[socketList[i]], "VerifyPrivateChat|" + sender.nickname);
+                            SendCommand(Server.clients[socketList[i]], "VerifyPrivateChat|" + sender.nickname);
                         }
                     }
                     break;
@@ -87,9 +87,9 @@ namespace ServerCLI
                     SendCommand(sender, "PrivateChatAccepted|" + commands[1]);
                     for (int i = 0; i < socketList.Count; i++)
                     {
-                        if (server.clients[socketList[i]].nickname == commands[1])
+                        if (Server.clients[socketList[i]].nickname == commands[1])
                         {
-                            SendCommand(server.clients[socketList[i]], "PrivateChatAccepted|" + sender.nickname);
+                            SendCommand(Server.clients[socketList[i]], "PrivateChatAccepted|" + sender.nickname);
                         }
                     }
                     break;
@@ -97,9 +97,9 @@ namespace ServerCLI
                 case "PrivateMessage":
                     for (int i = 0; i < socketList.Count; i++)
                     {
-                        if (server.clients[socketList[i]].nickname == commands[1])
+                        if (Server.clients[socketList[i]].nickname == commands[1])
                         {
-                            SendCommand(server.clients[socketList[i]], "PrivateMessage|" + sender.nickname + 
+                            SendCommand(Server.clients[socketList[i]], "PrivateMessage|" + sender.nickname + 
                                 "|" + commands[2] );
                         }
                     }
@@ -108,9 +108,9 @@ namespace ServerCLI
                 case "Blocked":
                     for (int i = 0; i < socketList.Count; i++)
                     {
-                        if (server.clients[socketList[i]].nickname == commands[1])
+                        if (Server.clients[socketList[i]].nickname == commands[1])
                         {
-                            SendCommand(server.clients[socketList[i]], "Blocked|" + sender.nickname);
+                            SendCommand(Server.clients[socketList[i]], "Blocked|" + sender.nickname);
                         }
                     }
                     break;
@@ -128,7 +128,7 @@ namespace ServerCLI
             byte[] buffer = Cryptography.Encrypt(command, Cryptography.Target.Client);
             try
             {
-                if (server.clients.ContainsKey(sender.socket))
+                if (Server.clients.ContainsKey(sender.socket))
                 {
                     sender.socket.Send(buffer, 0, buffer.Length, 0);
                 }
@@ -164,7 +164,7 @@ namespace ServerCLI
         public void SendToAllThisCommand(string command)
         {
             byte[] buffer = Cryptography.Encrypt(command, Cryptography.Target.Client);
-            List<Socket> socketList =  new List<Socket>(server.clients.Keys);
+            List<Socket> socketList =  new List<Socket>(Server.clients.Keys);
             for(int i = 0; i < socketList.Count; i++)
             {
                 try
@@ -178,7 +178,8 @@ namespace ServerCLI
                 }
                 finally
                 {
-                    Monitor.Exit(socketList[i]);
+                    if (socketList[i] != null)
+                        Monitor.Exit(socketList[i]);
                 }
             }
         }
@@ -186,7 +187,7 @@ namespace ServerCLI
         public void SendToAllThisCommand(string command, List<Socket> exclude)
         {
             byte[] buffer = Cryptography.Encrypt(command, Cryptography.Target.Client);
-            List<Socket> socketList = new List<Socket>(server.clients.Keys);
+            List<Socket> socketList = new List<Socket>(Server.clients.Keys);
             for (int i = 0; i < socketList.Count; i++)
             {
                 if (exclude.Contains(socketList[i]))

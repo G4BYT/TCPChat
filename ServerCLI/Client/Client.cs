@@ -12,7 +12,7 @@ namespace ServerCLI
         public IPEndPoint IpEndPoint { get; private set; }
         public string nickname { get; set; }
         public Server server;
-        private readonly int TimerInterval = 6000;
+        private readonly int TimerInterval = 60000;
         public bool Muted { get; set; }
         public string ChatIcon = "green";
         public DateTime LastMessageTime { get; set; }

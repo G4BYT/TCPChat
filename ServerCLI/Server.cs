@@ -11,7 +11,7 @@ namespace ServerCLI
     public class Server
     {
         static readonly Object obj = new Object();
-        public Dictionary<Socket, Client> clients = new Dictionary<Socket, Client>();
+        public static Dictionary<Socket, Client> clients = new Dictionary<Socket, Client>();
         public Dictionary<IPAddress, DateTime?> banMap = new Dictionary<IPAddress, DateTime?>();
         public Listener listener;
         public Listener adminListener;
@@ -76,7 +76,14 @@ namespace ServerCLI
                 Client client = new Client(s, this);
                 client.Received += Client_Received;
                 client.Disconnected += Client_Disconnected;
-                clients.Add(s, client);
+                try
+                {
+                    clients.Add(s, client);
+                }
+                catch
+                {
+
+                }
                 Write(Notification.ExclamationMark, client.IpEndPoint.ToString() + " is connecting to server.");
             });
         }
@@ -107,16 +114,21 @@ namespace ServerCLI
 
         private void Client_Disconnected(Client sender)
         {
-            if (clients.ContainsKey(sender.socket))
+            Task.Factory.StartNew(() =>
             {
-                sender.timerAway.Stop();
-                if (sender.nickname != " ")
+                if (clients.ContainsKey(sender.socket))
                 {
-                    cmd.ReceiveCommand(sender, "Disconnected|" + sender.nickname);
-                    AdminCMD.SendToAllThisCommand("Disconnected|" + sender.nickname);
+                    Client client = sender;
+                    clients.Remove(sender.socket);
+                    client.timerAway.Stop();
+                    if (client.nickname != " ")
+                    {
+                        cmd.ReceiveCommand(sender, "Disconnected|" + client.nickname);
+                        AdminCMD.SendToAllThisCommand("Disconnected|" + client.nickname);
+                    }
                 }
-                clients.Remove(sender.socket);
-            }
+            });
+        
         }
 
         public void Write(Notification notif, string message)

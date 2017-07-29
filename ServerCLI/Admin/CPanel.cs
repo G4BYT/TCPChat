@@ -19,25 +19,25 @@ namespace ServerCLI
             for(int i = 0; i < ipEndPointList.Count; i++)
             {
                 List<Socket> removeList = new List<Socket>();
-                List<Socket> socketList = new List<Socket>(server.clients.Keys);
+                List<Socket> socketList = new List<Socket>(Server.clients.Keys);
                 for (int j = 0; j < socketList.Count; j++)
                 {
                     Socket sock = socketList[j];
                     if (sock.RemoteEndPoint.Equals(ipEndPointList[i]))
                     {
-                        server.clients[sock].timerAway.Enabled = false;
-                        server.cmd.SendCommand(server.clients[sock], "Disconnect|");
-                        server.cmd.SendToAllThisCommand("UserKicked|" + server.clients[sock].nickname,
+                        Server.clients[sock].timerAway.Enabled = false;
+                        server.cmd.SendCommand(Server.clients[sock], "Disconnect|");
+                        server.cmd.SendToAllThisCommand("UserKicked|" + Server.clients[sock].nickname,
                             new List<Socket> { sock });
-                        AdminCMD.SendToAllThisCommand("UserKicked|" + server.clients[sock].nickname);
+                        AdminCMD.SendToAllThisCommand("UserKicked|" + Server.clients[sock].nickname);
                         server.Write(Server.Notification.Asterisk, sock.RemoteEndPoint.ToString() + " " +
-                            server.clients[sock].nickname + " has been kicked");
+                            Server.clients[sock].nickname + " has been kicked");
                         removeList.Add(sock);
                     }
                 }
                 foreach (Socket sock in removeList)
-                    if (server.clients.ContainsKey(sock))
-                        server.clients.Remove(sock);
+                    if (Server.clients.ContainsKey(sock))
+                        Server.clients.Remove(sock);
             }
         }
 
@@ -45,22 +45,22 @@ namespace ServerCLI
         {
             for(int i = 0; i < ipEndPointList.Count; i++)
             {
-                List<Socket> socketList = new List<Socket>(server.clients.Keys);
+                List<Socket> socketList = new List<Socket>(Server.clients.Keys);
                 for (int j = 0; j < socketList.Count; j++)
                 {
                     Socket sock = socketList[j];
                     if (sock.RemoteEndPoint.Equals(ipEndPointList[i]))
                     {
-                        if (server.clients[sock].Muted == true)
+                        if (Server.clients[sock].Muted == true)
                             continue;
-                        server.clients[sock].Muted = true;
-                        server.clients[sock].ChatIcon = "red";
+                        Server.clients[sock].Muted = true;
+                        Server.clients[sock].ChatIcon = "red";
                         server.Write(Server.Notification.Asterisk, sock.RemoteEndPoint.ToString() + " " +
-                            server.clients[sock].nickname + " has been muted");
-                        server.cmd.SendCommand(server.clients[sock], "Mute|");
-                        server.cmd.SendToAllThisCommand("UserMuted|" + server.clients[sock].nickname,
+                            Server.clients[sock].nickname + " has been muted");
+                        server.cmd.SendCommand(Server.clients[sock], "Mute|");
+                        server.cmd.SendToAllThisCommand("UserMuted|" + Server.clients[sock].nickname,
                             new List<Socket> { sock });
-                        AdminCMD.SendToAllThisCommand("UserMuted|" + server.clients[sock].nickname);
+                        AdminCMD.SendToAllThisCommand("UserMuted|" + Server.clients[sock].nickname);
                     }
                 }
             }
@@ -70,23 +70,23 @@ namespace ServerCLI
         {
             for (int i = 0; i < ipEndPointList.Count; i++)
             {
-                List<Socket> socketList = new List<Socket>(server.clients.Keys);
+                List<Socket> socketList = new List<Socket>(Server.clients.Keys);
                 for (int j = 0; j < socketList.Count; j++)
                 {
                     Socket sock = socketList[j];
                     if (sock.RemoteEndPoint.Equals(ipEndPointList[i]))
                     {
-                        if (server.clients[sock].Muted == false)
+                        if (Server.clients[sock].Muted == false)
                             continue;
                         server.Write(Server.Notification.Asterisk, sock.RemoteEndPoint.ToString() + " " +
-                            server.clients[sock].nickname + " has been unmuted");
-                        server.clients[sock].Muted = false;
-                        server.clients[sock].ChatIcon = "green";
-                        server.clients[sock].TimerReset();
-                        server.cmd.SendCommand(server.clients[sock], "Unmute|");
-                        server.cmd.SendToAllThisCommand("UserUnmuted|" + server.clients[sock].nickname, 
+                            Server.clients[sock].nickname + " has been unmuted");
+                        Server.clients[sock].Muted = false;
+                        Server.clients[sock].ChatIcon = "green";
+                        Server.clients[sock].TimerReset();
+                        server.cmd.SendCommand(Server.clients[sock], "Unmute|");
+                        server.cmd.SendToAllThisCommand("UserUnmuted|" + Server.clients[sock].nickname, 
                             new List<Socket> { sock });
-                        AdminCMD.SendToAllThisCommand("UserUnmuted|" + server.clients[sock].nickname);
+                        AdminCMD.SendToAllThisCommand("UserUnmuted|" + Server.clients[sock].nickname);
                     }
                 }
             }
@@ -103,25 +103,25 @@ namespace ServerCLI
                     banIP += "|" + ipList[i];
                 }
                 List<Socket> removeSock = new List<Socket>();
-                List<Socket> socketList = new List<Socket>(server.clients.Keys);
+                List<Socket> socketList = new List<Socket>(Server.clients.Keys);
                 for (int j = 0; j < socketList.Count; j++)
                 {
                     Socket sock = socketList[j];
-                    if (ipList[i].Equals(server.clients[sock].IPAddress))
+                    if (ipList[i].Equals(Server.clients[sock].IPAddress))
                     {
                         server.Write(Server.Notification.Asterisk, sock.RemoteEndPoint.ToString() + " " +
-                            server.clients[sock].nickname + " has been banned");
-                        server.cmd.SendCommand(server.clients[sock], "Ban|");
-                        server.cmd.SendToAllThisCommand("Banned|" + server.clients[sock].nickname,
+                            Server.clients[sock].nickname + " has been banned");
+                        server.cmd.SendCommand(Server.clients[sock], "Ban|");
+                        server.cmd.SendToAllThisCommand("Banned|" + Server.clients[sock].nickname,
                             new List<Socket> { sock });
-                        AdminCMD.SendToAllThisCommand("Banned|" + server.clients[sock].nickname);
+                        AdminCMD.SendToAllThisCommand("Banned|" + Server.clients[sock].nickname);
                         removeSock.Add(sock);
 
                     }
                 }
                 foreach (Socket sock in removeSock)
                 {
-                    server.clients.Remove(sock);
+                    Server.clients.Remove(sock);
                     sock.Close();
                     sock.Dispose();
                 }
