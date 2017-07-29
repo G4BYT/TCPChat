@@ -353,7 +353,7 @@
             this.MaximizeBox = false;
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Server";
+            this.Text = "Admin";
             this.cmsOptions.ResumeLayout(false);
             this.tpGlobalChat.ResumeLayout(false);
             this.tpGlobalChat.PerformLayout();

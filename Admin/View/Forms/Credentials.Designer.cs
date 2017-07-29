@@ -97,7 +97,7 @@
             this.MaximizeBox = false;
             this.Name = "Credentials";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Server";
+            this.Text = "Admin";
             this.ResumeLayout(false);
             this.PerformLayout();
 
