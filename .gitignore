@@ -33,3 +33,6 @@ TestResult.xml
 _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
+
+#Packages
+packages/
