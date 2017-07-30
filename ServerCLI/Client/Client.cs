@@ -46,7 +46,14 @@ namespace ServerCLI
             timerAway.Start();
             socket = accepted;
             IpEndPoint = (IPEndPoint)socket.RemoteEndPoint;
-            socket.BeginReceive(new byte[] { 0 }, 0, 0, SocketFlags.None, callback, null);
+            try
+            {
+                socket.BeginReceive(new byte[] { 0 }, 0, 0, SocketFlags.None, callback, null);
+            }
+            catch
+            {
+                Disconnected?.Invoke(this);
+            }
         }
 
         private void callback(IAsyncResult ar)

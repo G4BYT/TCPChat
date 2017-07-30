@@ -47,10 +47,11 @@ namespace ServerCLI
                     {
                         if (socketList[i] == sender.socket)
                             continue;
-                        connectCommand += "|" + Server.clients[socketList[i]].nickname
-                            + "|" + Server.clients[socketList[i]].ChatIcon;
+                        if (Server.clients.ContainsKey(socketList[i]) && !String.IsNullOrWhiteSpace(Server.clients[socketList[i]].nickname))
+                            connectCommand += "|" + Server.clients[socketList[i]].nickname
+                                + "|" + Server.clients[socketList[i]].ChatIcon;
                     }
-                    SendCommand(sender, connectCommand); 
+                    SendCommand(sender, connectCommand);
                     connectCommand = "NewUser|" + sender.nickname + "|" + sender.ChatIcon;
                     AdminCMD.SendToAllThisCommand(connectCommand + "|" + sender.IpEndPoint + "|" +
                             sender.LastMessageTime.ToLongTimeString() + "|" + sender.LastMessage);

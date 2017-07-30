@@ -121,7 +121,7 @@ namespace ServerCLI
                     Client client = sender;
                     clients.Remove(sender.socket);
                     client.timerAway.Stop();
-                    if (client.nickname != " ")
+                    if (!String.IsNullOrWhiteSpace(client.nickname))
                     {
                         cmd.ReceiveCommand(sender, "Disconnected|" + client.nickname);
                         AdminCMD.SendToAllThisCommand("Disconnected|" + client.nickname);

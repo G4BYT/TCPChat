@@ -59,9 +59,9 @@ namespace ServerCLI
                 Socket s = socket.EndAccept(ar);
                 SocketAccepted?.Invoke(s);
             }
-            catch(Exception ex)
+            catch
             {
-               // MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             }
         }
 
