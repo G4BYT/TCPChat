@@ -5,6 +5,9 @@ Client/bin
 Client/obj
 ServerCLI/bin
 ServerCLI/obj
+ServerCLI.Tests/bin
+ServerCLI.Tests/obj
+TestResults
 
 # User-specific files
 *.suo
